@@ -24,14 +24,15 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN php -m
-
 RUN composer install --no-dev --optimize-autoloader
 
 RUN a2enmod rewrite
 
-RUN chown -R www-data:www-data writable
+RUN mkdir -p /var/www/html/writable \
+    && chown -R www-data:www-data /var/www/html/writable
 
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
+
+CMD ["apache2-foreground"]
