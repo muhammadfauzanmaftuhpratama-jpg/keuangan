@@ -18,10 +18,10 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN a2enmod rewrite
+# Fix: pastikan cuma satu MPM yang aktif (mpm_prefork, wajib untuk mod_php)
+RUN a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork
 
-# Jangan copy apache.conf dulu
-# COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+RUN a2enmod rewrite
 
 EXPOSE 80
 
