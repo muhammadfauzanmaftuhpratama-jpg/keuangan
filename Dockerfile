@@ -18,8 +18,12 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Fix: pastikan cuma satu MPM yang aktif (mpm_prefork, wajib untuk mod_php)
-RUN a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork
+# Paksa hapus MPM lain, pastikan hanya prefork yang aktif
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
+           /etc/apache2/mods-enabled/mpm_event.conf \
+           /etc/apache2/mods-enabled/mpm_worker.load \
+           /etc/apache2/mods-enabled/mpm_worker.conf \
+ && a2enmod mpm_prefork
 
 RUN a2enmod rewrite
 
