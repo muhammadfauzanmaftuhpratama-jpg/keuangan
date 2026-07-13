@@ -18,7 +18,6 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Matikan mpm_event, aktifkan hanya mpm_prefork (wajib untuk mod_php)
 RUN a2dismod mpm_event 2>/dev/null; \
     rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf; \
     a2enmod mpm_prefork
