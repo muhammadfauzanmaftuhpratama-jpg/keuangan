@@ -18,12 +18,18 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Paksa hapus MPM lain, pastikan hanya prefork yang aktif
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
-           /etc/apache2/mods-enabled/mpm_event.conf \
-           /etc/apache2/mods-enabled/mpm_worker.load \
-           /etc/apache2/mods-enabled/mpm_worker.conf \
- && a2enmod mpm_prefork
+# Debug: lihat modul MPM SEBELUM fix
+RUN echo "=== SEBELUM FIX ===" && ls -la /etc/apache2/mods-enabled/ | grep mpm || true
+
+# Paksa matikan semua MPM, lalu aktifkan cuma prefork
+RUN a2dismod mpm_event mpm_worker mpm_itk 2>/dev/null; \
+    rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf \
+          /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf \
+          /etc/apache2/mods-enabled/mpm_itk.load /etc/apache2/mods-enabled/mpm_itk.conf; \
+    a2enmod mpm_prefork
+
+# Debug: lihat modul MPM SETELAH fix
+RUN echo "=== SETELAH FIX ===" && ls -la /etc/apache2/mods-enabled/ | grep mpm
 
 RUN a2enmod rewrite
 
