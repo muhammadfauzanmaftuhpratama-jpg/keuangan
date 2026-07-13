@@ -18,20 +18,13 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Debug: lihat modul MPM SEBELUM fix
-RUN echo "=== SEBELUM FIX ===" && ls -la /etc/apache2/mods-enabled/ | grep mpm || true
-
-# Paksa matikan semua MPM, lalu aktifkan cuma prefork
-RUN a2dismod mpm_event mpm_worker mpm_itk 2>/dev/null; \
-    rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf \
-          /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf \
-          /etc/apache2/mods-enabled/mpm_itk.load /etc/apache2/mods-enabled/mpm_itk.conf; \
-    a2enmod mpm_prefork
-
-# Debug: lihat modul MPM SETELAH fix
-RUN echo "=== SETELAH FIX ===" && ls -la /etc/apache2/mods-enabled/ | grep mpm
-
 RUN a2enmod rewrite
+
+# Debug: cari SEMUA baris LoadModule terkait mpm di seluruh config Apache
+RUN echo "=== CARI SEMUA REFERENSI MPM ===" && grep -rn "mpm" /etc/apache2/ 2>/dev/null
+
+# Debug: jalankan apache config test langsung untuk lihat error detailnya
+RUN echo "=== APACHE CONFIG TEST ===" && apache2ctl configtest 2>&1 || true
 
 EXPOSE 80
 
